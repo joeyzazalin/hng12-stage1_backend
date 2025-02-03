@@ -1,4 +1,3 @@
-// index.js
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -6,50 +5,65 @@ const axios = require('axios');
 const app = express();
 app.use(cors());
 
-// Helper functions
+// Helper Functions
 const isPrime = (num) => {
-    if (num < 2) return false;
-    for (let i = 2; i <= Math.sqrt(num); i++) {
-        if (num % i === 0) return false;
+    // Handle negative numbers
+    const absNum = Math.abs(num);
+    
+    if (absNum < 2) return false;
+    for (let i = 2; i <= Math.sqrt(absNum); i++) {
+        if (absNum % i === 0) return false;
     }
     return true;
 };
 
 const isPerfect = (num) => {
-    if (num < 1) return false;
+    // Handle negative numbers
+    const absNum = Math.abs(num);
+    
+    if (absNum < 1) return false;
     let sum = 0;
-    for (let i = 1; i < num; i++) {
-        if (num % i === 0) sum += i;
+    for (let i = 1; i < absNum; i++) {
+        if (absNum % i === 0) sum += i;
     }
-    return sum === num;
+    return sum === absNum;
 };
 
 const isArmstrong = (num) => {
-    const digits = String(num).split('');
+    // Handle negative numbers by taking absolute value
+    const absNum = Math.abs(num);
+    const digits = String(absNum).split('');
     const power = digits.length;
-    const sum = digits.reduce((acc, digit) => acc + Math.pow(parseInt(digit), power), 0);
-    return sum === num;
+    
+    const sum = digits.reduce((acc, digit) => 
+        acc + Math.pow(parseInt(digit), power), 0);
+    
+    return sum === absNum;
 };
 
 const getDigitSum = (num) => {
-    return String(num)
+    // Handle negative numbers by taking absolute value
+    const absNum = Math.abs(num);
+    
+    return String(absNum)
         .split('')
         .reduce((acc, digit) => acc + parseInt(digit), 0);
 };
 
 const getProperties = (num) => {
     const properties = [];
+    const absNum = Math.abs(num);
     
-    if (isArmstrong(num)) {
+    if (isArmstrong(absNum)) {
         properties.push('armstrong');
     }
     
-    properties.push(num % 2 === 0 ? 'even' : 'odd');
+    properties.push(absNum % 2 === 0 ? 'even' : 'odd');
     
     return properties;
 };
 
-// Main API endpoint
+// Main API Endpoint
 app.get('/api/classify-number', async (req, res) => {
     try {
         const numberParam = req.query.number;
@@ -64,8 +78,9 @@ app.get('/api/classify-number', async (req, res) => {
 
         const number = parseInt(numberParam);
 
-        // Fetch fun fact from Numbers API
-        const funFactResponse = await axios.get(`http://numbersapi.com/${number}/math`);
+        // Fetch fun fact from Numbers API (consider absolute value)
+        const absNumber = Math.abs(number);
+        const funFactResponse = await axios.get(`http://numbersapi.com/${absNumber}/math`);
         const funFact = funFactResponse.data;
 
         const response = {
@@ -87,6 +102,15 @@ app.get('/api/classify-number', async (req, res) => {
     }
 });
 
+// Default route
+app.get('/', (req, res) => {
+    res.status(200).json({
+        message: "Welcome to the Number Classification API",
+        endpoint: "/api/classify-number?number=X"
+    });
+});
+
+// Server Setup
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
