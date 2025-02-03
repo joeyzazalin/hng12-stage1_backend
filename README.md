@@ -70,7 +70,7 @@ npm install
 ### Example Usage
 
 ```bash
-curl "https://your-domain.com/api/classify-number?number=371"
+curl "https://https://hng12-stage1-backend.onrender.com/api/classify-number?number=371"
 ```
 
 ## Testing
@@ -82,7 +82,7 @@ You can test the API using tools like:
 
 ## Deployment
 
-This API is deployed at: [Your Deployment URL]
+This API is deployed at: [https://hng12-stage1-backend.onrender.com]
 
 ## Performance
 
