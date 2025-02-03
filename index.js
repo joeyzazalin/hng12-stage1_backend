@@ -7,9 +7,7 @@ app.use(cors());
 
 // Helper Functions
 const isPrime = (num) => {
-    // Handle negative numbers
     const absNum = Math.abs(num);
-    
     if (absNum < 2) return false;
     for (let i = 2; i <= Math.sqrt(absNum); i++) {
         if (absNum % i === 0) return false;
@@ -18,9 +16,7 @@ const isPrime = (num) => {
 };
 
 const isPerfect = (num) => {
-    // Handle negative numbers
     const absNum = Math.abs(num);
-    
     if (absNum < 1) return false;
     let sum = 0;
     for (let i = 1; i < absNum; i++) {
@@ -30,7 +26,6 @@ const isPerfect = (num) => {
 };
 
 const isArmstrong = (num) => {
-    // Handle negative numbers by taking absolute value
     const absNum = Math.abs(num);
     const digits = String(absNum).split('');
     const power = digits.length;
@@ -42,7 +37,6 @@ const isArmstrong = (num) => {
 };
 
 const getDigitSum = (num) => {
-    // Handle negative numbers by taking absolute value
     const absNum = Math.abs(num);
     
     return String(absNum)
@@ -63,6 +57,18 @@ const getProperties = (num) => {
     return properties;
 };
 
+const createArmstrongFunFact = (num) => {
+    const absNum = Math.abs(num);
+    const digits = String(absNum).split('');
+    const power = digits.length;
+    
+    const powerTerms = digits.map(digit => 
+        `${digit}^${power}`
+    ).join(' + ');
+    
+    return `${absNum} is an Armstrong number because ${powerTerms} = ${absNum}`;
+};
+
 // Main API Endpoint
 app.get('/api/classify-number', async (req, res) => {
     try {
@@ -72,24 +78,33 @@ app.get('/api/classify-number', async (req, res) => {
         if (!numberParam || isNaN(numberParam)) {
             return res.status(400).json({
                 number: numberParam,
-                error: true,
-                message: 'Invalid_input'
+                error: true
             });
         }
 
         const number = parseInt(numberParam);
-
-        // Fetch fun fact from Numbers API (consider absolute value)
         const absNumber = Math.abs(number);
-        const funFactResponse = await axios.get(`http://numbersapi.com/${absNumber}/math`);
-        const funFact = funFactResponse.data;
+
+        // Custom fun fact generation
+        let funFact = '';
+        if (isArmstrong(absNumber)) {
+            funFact = createArmstrongFunFact(absNumber);
+        } else {
+            // Fallback to Numbers API if not Armstrong
+            try {
+                const funFactResponse = await axios.get(`http://numbersapi.com/${absNumber}/math`);
+                funFact = funFactResponse.data;
+            } catch (apiError) {
+                funFact = `Interesting fact about ${absNumber} could not be retrieved.`;
+            }
+        }
 
         const response = {
             number,
             is_prime: isPrime(number),
             is_perfect: isPerfect(number),
             properties: getProperties(number),
-            digit_sum: getDigitSum(number),
+            digit_sum: getDigitSum(number), // sum of its digits
             fun_fact: funFact
         };
 
