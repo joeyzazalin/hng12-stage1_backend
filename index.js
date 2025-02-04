@@ -5,7 +5,7 @@ const axios = require('axios');
 const app = express();
 app.use(cors());
 
-// Helper Functions
+// Helper Functions remain the same
 const isPrime = (num) => {
     const absNum = Math.abs(num);
     if (absNum < 2) return false;
@@ -26,7 +26,6 @@ const isPerfect = (num) => {
 };
 
 const isArmstrong = (num) => {
-    // Negative numbers cannot be Armstrong numbers
     if (num < 0) return false;
     
     const digits = String(num).split('');
@@ -39,7 +38,6 @@ const isArmstrong = (num) => {
 };
 
 const getDigitSum = (num) => {
-    // Handle negative numbers by taking absolute value
     const absNum = Math.abs(num);
     return String(absNum)
         .split('')
@@ -49,12 +47,10 @@ const getDigitSum = (num) => {
 const getProperties = (num) => {
     const properties = [];
     
-    // Only check for Armstrong if number is positive
     if (num > 0 && isArmstrong(num)) {
         properties.push('armstrong');
     }
     
-    // Even/odd check uses absolute value
     properties.push(Math.abs(num) % 2 === 0 ? 'even' : 'odd');
     
     return properties;
@@ -73,20 +69,49 @@ const createArmstrongFunFact = (num) => {
     return `${num} is an Armstrong number because ${powerTerms} = ${num}`;
 };
 
+// Input validation helper
+const validateNumber = (numberParam) => {
+    // Check if parameter is missing or not a number
+    if (!numberParam || isNaN(numberParam)) {
+        return {
+            isValid: false,
+            error: "Please provide a valid number"
+        };
+    }
+
+    // Convert to number for detailed checking
+    const num = Number(numberParam);
+
+    // Check for decimal/floating point
+    if (!Number.isInteger(num)) {
+        return {
+            isValid: false,
+            error: "Please provide an integer, decimal numbers are not allowed"
+        };
+    }
+
+    return {
+        isValid: true,
+        value: num
+    };
+};
+
 // Main API Endpoint
 app.get('/api/classify-number', async (req, res) => {
     try {
         const numberParam = req.query.number;
         
-        // Input validation
-        if (!numberParam || isNaN(numberParam)) {
+        // Enhanced input validation
+        const validation = validateNumber(numberParam);
+        if (!validation.isValid) {
             return res.status(400).json({
                 number: numberParam,
-                error: true
+                error: true,
+                message: validation.error
             });
         }
 
-        const number = parseInt(numberParam);
+        const number = validation.value;
         const absNumber = Math.abs(number);
 
         // Custom fun fact generation
