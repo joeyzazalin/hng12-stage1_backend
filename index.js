@@ -26,19 +26,21 @@ const isPerfect = (num) => {
 };
 
 const isArmstrong = (num) => {
-    const absNum = Math.abs(num);
-    const digits = String(absNum).split('');
+    // Negative numbers cannot be Armstrong numbers
+    if (num < 0) return false;
+    
+    const digits = String(num).split('');
     const power = digits.length;
     
     const sum = digits.reduce((acc, digit) => 
         acc + Math.pow(parseInt(digit), power), 0);
     
-    return sum === absNum;
+    return sum === num;
 };
 
 const getDigitSum = (num) => {
+    // Handle negative numbers by taking absolute value
     const absNum = Math.abs(num);
-    
     return String(absNum)
         .split('')
         .reduce((acc, digit) => acc + parseInt(digit), 0);
@@ -46,27 +48,29 @@ const getDigitSum = (num) => {
 
 const getProperties = (num) => {
     const properties = [];
-    const absNum = Math.abs(num);
     
-    if (isArmstrong(absNum)) {
+    // Only check for Armstrong if number is positive
+    if (num > 0 && isArmstrong(num)) {
         properties.push('armstrong');
     }
     
-    properties.push(absNum % 2 === 0 ? 'even' : 'odd');
+    // Even/odd check uses absolute value
+    properties.push(Math.abs(num) % 2 === 0 ? 'even' : 'odd');
     
     return properties;
 };
 
 const createArmstrongFunFact = (num) => {
-    const absNum = Math.abs(num);
-    const digits = String(absNum).split('');
+    if (num < 0) return `${num} is not an Armstrong number as negative numbers cannot be Armstrong numbers`;
+    
+    const digits = String(num).split('');
     const power = digits.length;
     
     const powerTerms = digits.map(digit => 
         `${digit}^${power}`
     ).join(' + ');
     
-    return `${absNum} is an Armstrong number because ${powerTerms} = ${absNum}`;
+    return `${num} is an Armstrong number because ${powerTerms} = ${num}`;
 };
 
 // Main API Endpoint
@@ -87,15 +91,14 @@ app.get('/api/classify-number', async (req, res) => {
 
         // Custom fun fact generation
         let funFact = '';
-        if (isArmstrong(absNumber)) {
-            funFact = createArmstrongFunFact(absNumber);
+        if (number > 0 && isArmstrong(number)) {
+            funFact = createArmstrongFunFact(number);
         } else {
-            // Fallback to Numbers API if not Armstrong
             try {
                 const funFactResponse = await axios.get(`http://numbersapi.com/${absNumber}/math`);
                 funFact = funFactResponse.data;
             } catch (apiError) {
-                funFact = `Interesting fact about ${absNumber} could not be retrieved.`;
+                funFact = `Interesting fact about ${number} could not be retrieved.`;
             }
         }
 
@@ -104,7 +107,7 @@ app.get('/api/classify-number', async (req, res) => {
             is_prime: isPrime(number),
             is_perfect: isPerfect(number),
             properties: getProperties(number),
-            digit_sum: getDigitSum(number), // sum of its digits
+            digit_sum: getDigitSum(number),
             fun_fact: funFact
         };
 
@@ -126,7 +129,6 @@ app.get('/', (req, res) => {
     });
 });
 
-// Server Setup
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
