@@ -5,7 +5,7 @@ const axios = require('axios');
 const app = express();
 app.use(cors());
 
-// Helper Functions remain the same
+// Helper Functions (remain the same)
 const isPrime = (num) => {
     const absNum = Math.abs(num);
     if (absNum < 2) return false;
@@ -75,7 +75,7 @@ const validateNumber = (numberParam) => {
     if (!numberParam || isNaN(numberParam)) {
         return {
             isValid: false,
-            error: "Please provide a valid number"
+            value: numberParam || "undefined"
         };
     }
 
@@ -86,7 +86,7 @@ const validateNumber = (numberParam) => {
     if (!Number.isInteger(num)) {
         return {
             isValid: false,
-            error: "Please provide an integer, decimal numbers are not allowed"
+            value: numberParam
         };
     }
 
@@ -105,9 +105,8 @@ app.get('/api/classify-number', async (req, res) => {
         const validation = validateNumber(numberParam);
         if (!validation.isValid) {
             return res.status(400).json({
-                number: numberParam,
-                error: true,
-                message: validation.error
+                "number": validation.value,
+                "error": true
             });
         }
 
@@ -139,9 +138,9 @@ app.get('/api/classify-number', async (req, res) => {
         res.status(200).json(response);
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).json({
-            error: true,
-            message: 'Internal server error'
+        res.status(400).json({
+            "number": req.query.number,
+            "error": true
         });
     }
 });
