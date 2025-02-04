@@ -5,12 +5,13 @@ const axios = require('axios');
 const app = express();
 app.use(cors());
 
-// Helper Functions (remain the same)
+// Helper Functions
 const isPrime = (num) => {
-    const absNum = Math.abs(num);
-    if (absNum < 2) return false;
-    for (let i = 2; i <= Math.sqrt(absNum); i++) {
-        if (absNum % i === 0) return false;
+    // Negative numbers and 0,1 are not prime
+    if (num <= 1) return false;
+    
+    for (let i = 2; i <= Math.sqrt(num); i++) {
+        if (num % i === 0) return false;
     }
     return true;
 };
